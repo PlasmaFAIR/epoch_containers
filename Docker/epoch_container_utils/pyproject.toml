@@ -1,0 +1,29 @@
+[project]
+name = "epoch_container_utils"
+dynamic = ["version"]
+readme = "README.md"
+authors = [
+    {name = "Liam Pattinson", email = "liam.pattinson@york.ac.uk"}
+]
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+test = ["pytest"]
+lint = ["black", "flake8", "isort", "ruff"]
+
+[project.scripts]
+build_epoch = "epoch_container_utils.build_epoch:main"
+run_epoch = "epoch_container_utils.run_epoch:main"
+
+[build-system]
+requires = ["setuptools >= 65", "setuptools_scm[toml] >= 6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "epoch_container_utils/_version.py"
+fallback_version = "0.1.0"
+
+[tool.isort]
+profile = "black"
+
