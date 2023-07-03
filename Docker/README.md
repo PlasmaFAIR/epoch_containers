@@ -1,4 +1,4 @@
-# Dockerfile
+# Epoch on Docker
 
 To build the docker container:
 
@@ -6,26 +6,28 @@ To build the docker container:
 $ docker build . -t epoch
 ```
 
-The script `run_epoch.sh` is copied into the Dockerfile, and acts as an entrypoint.
-To run the container:
+The library `epoch_container_utils` is copied and installed into the container, and
+it manages the way in which Epoch is built and run. To run Epoch from a Docker
+container, try:
 
 ```bash
-$ docker run --rm -v /output/dir/on/host:/output epoch epoch2d
+$ docker run --rm -v /output/dir/on/host:/output \
+    ghcr.io/liampattinson/epoch:latest \
+    -d 2 --photons
 ```
 
 Your `input.deck` file should be located at `/output/dir/on/host/input.deck`. The
-parameter `epoch` tells docker to run the `epoch` container built in the previous
-step, while the parameter `epoch2d` tells it to run the 2D version of epoch within
-the container.
+parameter `-d 2` tells docker to run the 2D variant of Epoch, and the optional
+`--photons` flag switches on QED effects.
 
-To get help text, try running without arguments:
+To get help text, try:
 
 ```bash
-$ docker run --rm epoch
+$ docker run --rm ghcr.io/liampattinson/epoch:latest --help
 ```
 
 If you need to inspect the container, try:
 
 ```bash
-$ docker run --rm -it --entrypoint /bin/bash epoch
+$ docker run --rm -it --entrypoint /bin/bash ghcr.io/liampattinson/epoch:latest
 ```

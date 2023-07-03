@@ -9,7 +9,7 @@ University of York, but the contents may be of use to other Epoch users.
 Containers package up software and dependencies so that code compiled on one machine
 can be reliably run on others. When used in conjunction with scientific software, they
 allow researchers to run code without needing to build it themselves, and they make
-it is much easier to share reproducible workflows.
+it much easier to share reproducible workflows.
 
 We provide support for two container platforms: [Docker][docker] and
 [Singularity][singularity]. Docker is the most widely used platform, and
@@ -17,46 +17,6 @@ has been used here to build a 'base image' of Epoch on which other tools may be 
 Singularity is an alternative that was designed from the ground up to be useable on
 HPC systems, so unlike Docker it can be run on multi-node architectures using MPI
 without issue.
-
-## Running Epoch with Docker
-
-To run Epoch on your own machine, you'll first need to install Docker if you don't have
-it already.
-
-The Epoch Docker container can be found at `ghcr.io/liampattinson/epoch:latest`.
-To run it, try:
-
-```bash
-$ docker run --rm -v /path/to/output/dir:/output \
-      ghcr.io/liampattinson/epoch:latest epoch2d
-```
-
-Breaking down each component here:
-
-- `docker run` starts up the container and runs its 'entrypoint', which is the script
-  `docker/run_epoch.sh` in this repository.
-- `--rm` automatically removes the container after running.
-- `-v /path/to/output/dir:/output` mounts the directory `/path/to/output/dir` on the
-  host machine to `/output` on the container. `/path/to/output/dir` should contain
-  your `input.deck` file before running.
-- `ghcr.io/liampattinson/epoch:latest` is the container to run. This will be downloaded
-  the first time you run the container, and cached for future use. It is created using
-  the file `Docker/Dockerfile` in this repo.
-- `epoch2d` is the command to run within the container. The options are:
-  - `epoch1d`
-  - `epoch2d`
-  - `epoch3d`
-  - `epoch1d_qed`
-  - `epoch2d_qed`
-  - `epoch3d_qed`
-
-Note that you shouldn't mount your current working directory. If you want to open an
-interactive shell inside the container, try:
-
-```bash
-$ docker run --rm -it -v /path/to/output/dir:/output \
-      --entrypoint /bin/bash ghcr.io/liampattinson/epoch:latest
-```
 
 ## Running Epoch with Singularity
 
@@ -86,28 +46,37 @@ You can then run using:
 
 ```bash
 $ singularity exec library://liampattinson/epoch/epoch.sif:latest \
-      run_epoch.sh epoch2d ./output
+      run_epoch --help
+```
+
+This should download and cache the container, and then display some help text.
+You can then run using:
+
+```bash
+$ singularity exec library://liampattinson/epoch/epoch.sif:latest \
+    run_epoch -d 2 -o . --photons
 ```
 
 Note that you should only run short tests on the login nodes. Let's break this down:
 
 - `singularity exec`: Run a singularity container with a user provided command.
 - `library://`: Download and run a container from [sylabs.io][sylabs].
-- `liampattinson/epoch/epoch.sif`: The specific container we want to run. This one
-  is a prebuilt Epoch container using the `Singularity/Singularity` recipe file in
+- `liampattinson/epoch/epoch.sif:latest`: The specific container we want to run. This
+  one is a prebuilt Epoch container using the `Singularity/Singularity` recipe file in
   this repo. Note that the Singularity container is built on top of the Docker
   container.
-- `run_epoch.sh epoch2d .`: The command to run within the container. The shell script
-  `run_epoch.sh` is the same command invoked by the Docker container, but with
-  Singularity we need to name it explicitly. We also must provide a second argument
-  which is the output directory, in which we should have our `input.deck` file.
+- `run_epoch`: The scripting entrypoint to launch an Epoch variant.
+- `-d 2`: Run 2D epoch. Can also be 1D and 3D.
+- `-o .`: Location of the output directory, which should container you `input.deck`
+  file. Ensure this is somewhere within your scratch space!
+- `--photons`: Optional flag that switches on QED features.
 
 To run using MPI, we put the `mpirun` command _before_ the `singularity` command:
 
 ```bash
-$ mpirun -n 2 singularity exec \
-      library://liampattinson/epoch/epoch.sif:latest \
-      run_epoch.sh epoch2d ./output
+$ mpirun -n 2 \
+    singularity exec library://liampattinson/epoch/epoch.sif:latest \
+    run_epoch -d 2 -o . --photons
 ```
 
 For real runs, we'll want to run Epoch via the Slurm scheduler. See the `./examples`
@@ -124,9 +93,7 @@ We can check the progress of our job using:
 $ squeue -u <userid>
 ```
 
-The first time we run the container might be slow as we first have to download the
-container. We can speed things up by first pulling the container from the remote
-repo:
+It is also possible to pull the container from the remote repo:
 
 ```bash
 $ singularity pull epoch.sif library://liampattinson/epoch/epoch.sif:latest
@@ -181,18 +148,76 @@ it's recommended to just use the base user environment.
 
 Please see the [Epoch docs][epoch] for info on using SDF analysis tools.
 
+## Running Epoch with Docker
+
+To run Epoch on your own machine, you'll first need to install Docker if you don't have
+it already.
+
+The Epoch Docker container can be found at `ghcr.io/liampattinson/epoch:latest`.
+To run it, try:
+
+```bash
+$ docker run --rm -v /path/to/output/dir:/output \
+      ghcr.io/liampattinson/epoch:latest -d 2 --photons
+```
+
+Breaking down each component here:
+
+- `docker run` starts up the container and runs its 'entrypoint', which is the script
+  `run_epoch`.
+- `--rm` automatically removes the container after running.
+- `-v /path/to/output/dir:/output` mounts the directory `/path/to/output/dir` on the
+  host machine to `/output` on the container. `/path/to/output/dir` should contain
+  your `input.deck` file before running.
+- `ghcr.io/liampattinson/epoch:latest` is the container to run. This will be downloaded
+  the first time you run the container, and cached for future use. It is created using
+  the file `Docker/Dockerfile` in this repo.
+- `-d 2`: Run 2D epoch. Can also be 1D and 3D.
+- `--photons`: Optional flag that switches on QED features.
+
+Note that you shouldn't mount your current working directory. Provided the second path
+provided to `-v` is `/output`, there's no need to provide an argument to the `-o` flag.
+If you want to open an interactive shell inside the container, try:
+
+```bash
+$ docker run --rm -it -v /path/to/output/dir:/output \
+      --entrypoint /bin/bash ghcr.io/liampattinson/epoch:latest
+```
+
 ## Building Docker images
 
-TODO
+To build a Docker image, enter the `Docker` directory and try:
+
+```bash
+$ docker build . -t epoch
+```
+
+You can then run the container via:
+
+```bash
+$ docker run --rm -v /path/to/output/dir:/output \
+      epoch -d 2 --photons
+```
+
+Please see the [online docs][ghcr] to set up your GitHub account to permit pushing to
+the GitHub Container Registry (GHCR). Once set up, you should tag your repo with the
+name it should use online:
+
+```bash
+$ docker tag epoch ghcr.io/<my_profile>/epoch:0.1
+```
+
+You can then push using:
+
+```bash
+$ docker push ghcr.io/<my_profile>/epoch:0.1
+```
 
 ## Building Singularity images
 
-TODO recommend docker first
-
-The file `Singularity` in the top-level of this repository contains the definitions
-for an Epoch Singularity container. This is the recipe we use to create new container
-images. If you want to make additions/changes to the recipe in this repo, please feel
-free to create a fork and do so!
+The file `Singularity/Singularity` contains the definitions for an Epoch Singularity
+container. As this builds on the Docker image, it doesn't do much beyond updating
+some file access permissions.
 
 Due to permission issues, we can't build new containers directly on Viking. However,
 we can make use of the Sylabs remote builder. To use this, first go to
@@ -253,3 +278,4 @@ similarly-licensed [Epoch repository][epoch-repo].
 [epoch]: https://epochpic.github.io/
 [epoch_repo]: https://github.com/Warwick-Plasma/epoch
 [sylabs]: https://sylabs.io
+[ghcr]: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry

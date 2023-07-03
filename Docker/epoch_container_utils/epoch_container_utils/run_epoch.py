@@ -14,7 +14,7 @@ def parse_run_args() -> argparse.Namespace:
 
     epilog = dedent(
         """\
-        Example:
+        Docker example:
 
          $ docker run --rm -v /home/username/epoch/my_data:/output_dir\\
                ghcr.io/liampattinson/epoch:latest\\
@@ -27,8 +27,22 @@ def parse_run_args() -> argparse.Namespace:
          The -v flag sets the volumes, which controls how directories on the host
          machine are mounted in the container. In this example, the input file
          'input.deck' should be located at the path
-         /home/username/epoch/my_data/input.deck. The directory in the container must
+         /home/username/epoch/my_data/input.deck. It is not recommended to use your
+         current working directory. The directory in the container must
          match the directory supplied to the -o/--output flag.
+
+        Singularity example:
+
+         $ singularity exec library://liampattinson/epoch/epoch.sif:latest\\
+             run_epoch -d 2 -o . --photons
+
+         Arguments to this script are supplied after specifying the Singularity
+         container.
+
+         Unlike when running with the Docker container, the command provided to
+         the container must begin with 'run_epoch'. Users should not use the
+         default value supplied to -o/--output, as this will cause permissions
+         issues. Instead, this should be somewhere within scratch space.
         """
     )
 
@@ -36,6 +50,7 @@ def parse_run_args() -> argparse.Namespace:
         prog="run_epoch",
         description="Entrypoint script to containerised Epoch.",
         epilog=epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
@@ -55,8 +70,9 @@ def parse_run_args() -> argparse.Namespace:
         help=dedent(
             """\
             The path the output directory in the container.
-            This should match the second path passed to -v/--volume in your call to
-            'docker run'.
+            With Docker, this should match the second path passed to -v/--volume in
+            your call to 'docker run'. With Singularity, this should simply be the
+            directory in which your 'input.deck' file is stored.
             """
         ).replace("\n", " "),
     )

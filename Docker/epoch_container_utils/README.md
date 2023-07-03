@@ -21,14 +21,23 @@ $ python3 -m pip install --upgrade pip
 $ python3 -m pip install -e .[lint,test]
 ```
 
+This will install the scripts `build_epoch` and `run_epoch`, which are intended to
+be run inside of a Docker container.
+
 ## Linting and Testing
 
 The following tools should be used regularly:
 
 ```bash
-$ black epoch_container_utils
-$ isort epoch_container_utils
-$ flake8 epoch_container_utils
+$ black epoch_container_utils tests
+$ isort epoch_container_utils tests
+$ flake8 epoch_container_utils tests
 ```
 
 The tool `ruff` may be used for additional code improvements.
+
+To test, try:
+
+```bash
+$ pytest
+```

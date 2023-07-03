@@ -1,7 +1,6 @@
 # TODO.md
 
-- Better scripting interface
-- Finish updating README
+- Add automated testing/deployment
 - On running, Epoch complains that it can't find `src/physics_packages/TABLES`.
   Is this something we can fix here?
 - Need to add more variants with different compiler flag combinations.
