@@ -24,14 +24,16 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /app
 
 # Get epoch
-RUN git clone --recursive https://github.com/Warwick-Plasma/epoch epoch
+RUN git clone --recursive https://github.com/Warwick-Plasma/epoch /app/epoch
 
 # Copy in utility library
-COPY epoch_container_utils epoch_container_utils
+COPY epoch_container_utils /app/epoch_container_utils
+RUN ls -l /app/epoch_container_utils
 
 # Set up Python, install utility library
 WORKDIR /app/epoch_container_utils
-RUN python3 -m pip install --upgrade pip numpy matplotlib .
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install numpy matplotlib .
 
 # Build Epoch variants
 WORKDIR /app/epoch
@@ -45,6 +47,9 @@ RUN build_epoch --dims 3 --compiler=${EPOCH_COMPILER} --photons
 # Add SDF helper libs to Python env
 WORKDIR /app/epoch/epoch1d
 RUN make sdfutils
+
+# Set path to include executables
+ENV PATH="${PATH}:/app/epoch/bin"
 
 # Set entrypoint to that installed by epoch_container_utils
 ENTRYPOINT ["run_epoch"]
