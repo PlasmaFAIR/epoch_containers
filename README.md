@@ -271,7 +271,7 @@ executable), we can then upload version `:2.0` etc.
 ## Licensing
 
 This repo is licensed under the GNU GPLv3 license, as it contains files from the
-similarly-licensed [Epoch repository][epoch-repo].
+similarly-licensed [Epoch repository][epoch_repo].
 
 [docker]: https://docs.docker.com/
 [singularity]: https://docs.sylabs.io/guides/3.11/user-guide/
