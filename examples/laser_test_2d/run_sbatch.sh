@@ -15,4 +15,4 @@ export PMIX_MCA_psec=^munge
 
 echo "Running singularity epoch test on ${SLURM_NTASKS} CPU cores"
   
-mpirun -n ${SLURM_NTASKS} singularity exec library://liampattinson/epoch/epoch.sif:latest run_epoch.sh epoch2d .
+mpirun -n ${SLURM_NTASKS} singularity exec library://liampattinson/epoch/epoch.sif:latest run_epoch -d 2 -o .

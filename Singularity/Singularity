@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ghcr.io/liampattinson/epoch:0.3
+From: ghcr.io/plasmafair/epoch:v0.3.1
 
 %help
 

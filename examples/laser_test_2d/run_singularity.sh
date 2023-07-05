@@ -8,6 +8,4 @@
 module purge
 module load mpi/OpenMPI tools/Singularity
 
-cmd="run_epoch.sh epoch2d ."
-
-mpirun -n 2 singularity exec library://liampattinson/epoch/epoch.sif:latest ${cmd}
+mpirun -n 2 singularity exec library://liampattinson/epoch/epoch.sif:latest -d 2 -o .
