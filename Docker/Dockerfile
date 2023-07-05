@@ -51,5 +51,8 @@ RUN make sdfutils
 # Set path to include executables
 ENV PATH="${PATH}:/app/epoch/bin"
 
+# Reset workdir to base /app dir
+WORKDIR /app
+
 # Set entrypoint to that installed by epoch_container_utils
 ENTRYPOINT ["run_epoch"]
