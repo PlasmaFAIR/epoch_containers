@@ -71,13 +71,32 @@ Note that you should only run short tests on the login nodes. Let's break this d
   file. Ensure this is somewhere within your scratch space!
 - `--photons`: Optional flag that switches on QED features.
 
+For a simplified interface, we can also use the `epoch_singularity.py` script within
+this repository:
+
+```bash
+$ ./epoch_singularity.py  -d 2 -o . --photons
+```
+
+This script mimics Epoch's behaviour of prompting the user to input their output
+directory after the program is running, so the following also works:
+
+```bash
+$ echo . | ./epoch_singularity.py  -d 2 --photons
+```
+
 To run using MPI, we put the `mpirun` command _before_ the `singularity` command:
 
 ```bash
 $ mpirun -n 2 \
     singularity exec library://liampattinson/epoch/epoch.sif:latest \
     run_epoch -d 2 -o . --photons
+$ # Or...
+$ mpirun -n 2 ./epoch_singularity.py -d 2 -o . --photons
 ```
+
+When running the `epoch_singularity.py` script with MPI, note that  we must supply the
+output directory via the `-o` flag, and can't input it using `echo output_dir |`.
 
 For real runs, we'll want to run Epoch via the Slurm scheduler. See the `./examples`
 folder for an example job script `run_sbatch.sh` and an example `input.deck`. Once we
