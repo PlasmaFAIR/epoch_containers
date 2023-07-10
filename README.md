@@ -153,12 +153,12 @@ Please see the [Epoch docs][epoch] for info on using SDF analysis tools.
 To run Epoch on your own machine, you'll first need to install Docker if you don't have
 it already.
 
-The Epoch Docker container can be found at `ghcr.io/liampattinson/epoch:latest`.
+The Epoch Docker container can be found at `ghcr.io/plasmafair/epoch:latest`.
 To run it, try:
 
 ```bash
 $ docker run --rm -v /path/to/output/dir:/output \
-      ghcr.io/liampattinson/epoch:latest -d 2 --photons
+      ghcr.io/plasmafair/epoch:latest -d 2 --photons
 ```
 
 Breaking down each component here:
@@ -169,7 +169,7 @@ Breaking down each component here:
 - `-v /path/to/output/dir:/output` mounts the directory `/path/to/output/dir` on the
   host machine to `/output` on the container. `/path/to/output/dir` should contain
   your `input.deck` file before running.
-- `ghcr.io/liampattinson/epoch:latest` is the container to run. This will be downloaded
+- `ghcr.io/plasmafair/epoch:latest` is the container to run. This will be downloaded
   the first time you run the container, and cached for future use. It is created using
   the file `Docker/Dockerfile` in this repo.
 - `-d 2`: Run 2D epoch. Can also be 1D and 3D.
@@ -181,7 +181,23 @@ If you want to open an interactive shell inside the container, try:
 
 ```bash
 $ docker run --rm -it -v /path/to/output/dir:/output \
-      --entrypoint /bin/bash ghcr.io/liampattinson/epoch:latest
+      --entrypoint /bin/bash ghcr.io/plasmafair/epoch:latest
+```
+
+For a simplified interface, try using the script `epoch_docker.py`. To achieve the
+same results as the call above, try:
+
+```bash
+$ ./epoch_docker.py -d 2 -o /path/to/output/dir --photons
+```
+
+Note that the `-o` flag here refers to the run location on the host machine, not the
+location in the docker container. If `-o` is not provided, this script mimics the
+behaviour of Epoch itself by prompting the user to input their output directory after
+the program starts:
+
+```bash
+$ echo /path/to/output/dir | ./epoch_docker.py -d 2 --photons
 ```
 
 ## Building Docker images

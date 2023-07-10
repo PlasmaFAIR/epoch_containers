@@ -69,7 +69,7 @@ def parse_run_args() -> argparse.Namespace:
         type=Path,
         help=dedent(
             """\
-            The path the output directory in the container.
+            The path of the output directory in the container.
             With Docker, this should match the second path passed to -v/--volume in
             your call to 'docker run'. With Singularity, this should simply be the
             directory in which your 'input.deck' file is stored.
