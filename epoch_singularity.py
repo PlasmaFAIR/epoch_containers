@@ -50,7 +50,19 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "-n",
+        "--nprocs",
+        default=1,
+        type=int,
+        help="The number of processes to run on. Uses mpirun.",
+    )
+
+    parser.add_argument(
         "--photons", action="store_true", help="Run with QED features enabled"
+    )
+
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Print the command before running"
     )
 
     return parser.parse_args()
@@ -65,12 +77,23 @@ def main() -> None:
     if output is None:
         output = Path(input("Please enter output directory:\n"))
 
+    # Some systems with /scratch must have --bind arg.
+    if output.resolve().parts[1] == "scratch":
+        bind = f"--bind {output.resolve()}"
+    else:
+        bind = ""
+
     # Construct and run singularity call
-    singularity_call = (
-        f"singularity exec {args.container} run_epoch -d {args.dims} -o {output} "
-        f"{'--photons' if args.photons else ''}"
+    cmd = (
+        f"singularity exec {bind} {args.container} run_epoch -d {args.dims} -o {output}"
     )
-    subprocess.run(singularity_call.split())
+    if args.nprocs != 1:
+        cmd = f"mpirun -n {args.nprocs} {cmd}"
+    if args.photons:
+        cmd = f"{cmd} --photons"
+    if args.verbose:
+        print(cmd)
+    subprocess.run(cmd.split())
 
 
 if __name__ == "__main__":
