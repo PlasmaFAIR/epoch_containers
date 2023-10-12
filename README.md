@@ -314,3 +314,99 @@ similarly-licensed [Epoch repository][epoch_repo].
 [epoch_repo]: https://github.com/Warwick-Plasma/epoch
 [sylabs]: https://sylabs.io
 [ghcr]: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+
+# COPYING README FILES FROM OLD DIRS HERE
+
+## Epoch on Docker
+
+To build the docker container:
+
+```bash
+$ docker build . -t epoch
+```
+
+The library `epoch_container_utils` is copied and installed into the container, and
+it manages the way in which Epoch is built and run. To run Epoch from a Docker
+container, try:
+
+```bash
+$ docker run --rm -v /output/dir/on/host:/output \
+    ghcr.io/liampattinson/epoch:latest \
+    -d 2 --photons
+```
+
+Your `input.deck` file should be located at `/output/dir/on/host/input.deck`. The
+parameter `-d 2` tells docker to run the 2D variant of Epoch, and the optional
+`--photons` flag switches on QED effects.
+
+To get help text, try:
+
+```bash
+$ docker run --rm ghcr.io/liampattinson/epoch:latest --help
+```
+
+If you need to inspect the container, try:
+
+```bash
+$ docker run --rm -it --entrypoint /bin/bash ghcr.io/liampattinson/epoch:latest
+```
+
+## Epoch Containers Python Package
+
+This Python package is used to build and run Epoch variants within a Docker container.
+
+### Usage
+
+Within a container, the package is installed using:
+
+```bash
+$ python3 -m pip install --upgrade pip
+$ python3 -m pip install .
+```
+
+To install outside of a container for development and testing, it is instead
+recommended to create a virtual environment and make an editable install:
+
+```bash
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ python3 -m pip install --upgrade pip
+$ python3 -m pip install -e .[lint,test]
+```
+
+This will install the scripts `build_epoch` and `run_epoch`, which are intended to
+be run inside of a Docker container.
+
+### Linting and Testing
+
+The following tools should be used regularly:
+
+```bash
+$ black src tests
+$ isort src tests
+$ docformatter --in-place src
+$ ruff src tests
+$ refurb src  # Python 3.10+
+```
+
+These can alternatively be run automatically using tox:
+
+```bash
+$ pip install tox
+$ tox run -e format  # Automatically format the code
+$ tox run -e lint  # Linter reports
+```
+
+To test, try:
+
+```bash
+$ pytest -vv tests
+```
+
+With tox, we can test multiple Python versions:
+
+```bash
+$ tox run -e py38  # Test with Python 3.8 in a fresh env
+$ tox run -e py310  # Test with Python 3.10 in a fresh env
+```

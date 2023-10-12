@@ -23,17 +23,19 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Create working directory
 WORKDIR /app
 
+# Copy in this library
+COPY pyproject.toml ./pyproject.toml
+COPY src ./src
+COPY LICENSE ./LICENSE
+COPY README.md ./README.md
+
 # Get epoch
 RUN git clone --recursive https://github.com/Warwick-Plasma/epoch /app/epoch
 
-# Copy in utility library
-COPY epoch_container_utils /app/epoch_container_utils
-RUN ls -l /app/epoch_container_utils
-
 # Set up Python, install utility library
-WORKDIR /app/epoch_container_utils
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install numpy matplotlib .
+RUN python3 -m pip install numpy matplotlib
+RUN python3 -m pip install .
 
 # Build Epoch variants
 WORKDIR /app/epoch
@@ -53,6 +55,9 @@ ENV PATH="${PATH}:/app/epoch/bin"
 
 # Reset workdir to base /app dir
 WORKDIR /app
+
+# Ensure Singularity container will have necessary permissions
+RUN chmod --recursive 755 /app/epoch/bin
 
 # Set entrypoint to that installed by epoch_container_utils
 ENTRYPOINT ["run_epoch"]

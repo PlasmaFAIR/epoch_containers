@@ -3,12 +3,11 @@ import os
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import Optional
 
 import pytest
 
-from epoch_container_utils.run_epoch import parse_run_args, run_epoch
-from epoch_container_utils.utils import exe_name
+from epoch_containers.run_epoch import parse_run_args, run_epoch
+from epoch_containers.utils import exe_name
 
 
 @pytest.mark.parametrize(
@@ -22,25 +21,23 @@ from epoch_container_utils.utils import exe_name
 )
 def test_parse_run_args(
     monkeypatch,
-    dims: Optional[int],
-    output: Optional[str],
-    photons: Optional[bool],
+    dims: int | None,
+    output: str | None,
+    photons: bool | None,
     long_names: bool,
 ):
     # Set up false argv
-    argv = ["test"]
+    argv: list[str] = ["test"]
     if dims is not None:
-        argv.append("--dims" if long_names else "-d")
-        argv.append(dims)
+        argv.extend(["--dims" if long_names else "-d", str(dims)])
     if output is not None:
-        argv.append("--output" if long_names else "-o")
-        argv.append(output)
+        argv.extend(["--output" if long_names else "-o", output])
     if photons:
         argv.append("--photons")
 
     # Parse args
     with monkeypatch.context() as mpatch:
-        mpatch.setattr(sys, "argv", [str(x) for x in argv])
+        mpatch.setattr(sys, "argv", argv)
         args = parse_run_args()
 
     # Test args existence. All should be present, even if not provided.

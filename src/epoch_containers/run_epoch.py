@@ -2,22 +2,19 @@ import argparse
 import subprocess
 from pathlib import Path
 from textwrap import dedent
-from typing import Optional
 
 from .utils import exe_name
 
 
 def parse_run_args() -> argparse.Namespace:
-    """
-    Defines command line interface for running Epoch.
-    """
+    """Defines command line interface for running Epoch."""
 
     epilog = dedent(
         """\
         Docker example:
 
          $ docker run --rm -v /home/username/epoch/my_data:/output_dir\\
-               ghcr.io/liampattinson/epoch:latest\\
+               ghcr.io/PlasmaFAIR/epoch:latest\\
                -d 2 -o /output_dir --photons
 
          Arguments to this script are supplied after specifying the Docker container.
@@ -33,7 +30,7 @@ def parse_run_args() -> argparse.Namespace:
 
         Singularity example:
 
-         $ singularity exec library://liampattinson/epoch/epoch.sif:latest\\
+         $ singularity exec docker://PlasmaFAIR/epoch:latest\\
              run_epoch -d 2 -o . --photons
 
          Arguments to this script are supplied after specifying the Singularity
@@ -85,10 +82,9 @@ def parse_run_args() -> argparse.Namespace:
 
 
 def run_epoch(
-    dims: int, output: Path, photons: bool = False, bin_dir: Optional[Path] = None
+    dims: int, output: Path, photons: bool = False, bin_dir: Path | None = None
 ) -> None:
-    """
-    Launches an Epoch subprocess.
+    """Launches an Epoch subprocess.
 
     Parameters
     ----------
@@ -104,12 +100,10 @@ def run_epoch(
     """
     exe = exe_name(dims=dims, photons=photons)
     if bin_dir is not None:
-        exe = Path(bin_dir).resolve() / exe
-    subprocess.run([str(exe)], input=str(output).encode("utf-8"))
+        exe = str(Path(bin_dir).resolve() / exe)
+    subprocess.run([exe], input=str(output).encode("utf-8"))
 
 
 def main() -> None:
-    """
-    Entrypoint function for running Epoch.
-    """
+    """Entrypoint function for running Epoch."""
     run_epoch(**vars(parse_run_args()))

@@ -2,16 +2,11 @@ import itertools
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import Iterable, Optional
 
 import pytest
 
-from epoch_container_utils.build_epoch import (
-    build_epoch,
-    compiler_flags,
-    parse_build_args,
-)
-from epoch_container_utils.utils import exe_name
+from epoch_containers.build_epoch import build_epoch, compiler_flags, parse_build_args
+from epoch_containers.utils import exe_name
 
 
 @pytest.mark.parametrize(
@@ -25,25 +20,23 @@ from epoch_container_utils.utils import exe_name
 )
 def test_parse_build_args(
     monkeypatch,
-    dims: Optional[int],
-    compiler: Optional[str],
-    photons: Optional[bool],
+    dims: int | None,
+    compiler: str | None,
+    photons: bool | None,
     long_names: bool,
 ):
     # Set up false argv
-    argv = ["test"]
+    argv: list[str] = ["test"]
     if dims is not None:
-        argv.append("--dims" if long_names else "-d")
-        argv.append(dims)
+        argv.extend(["--dims" if long_names else "-d", str(dims)])
     if compiler is not None:
-        argv.append("--compiler" if long_names else "-c")
-        argv.append(compiler)
+        argv.extend(["--compiler" if long_names else "-c", compiler])
     if photons:
         argv.append("--photons")
 
     # Parse args
     with monkeypatch.context() as mpatch:
-        mpatch.setattr(sys, "argv", [str(x) for x in argv])
+        mpatch.setattr(sys, "argv", argv)
         args = parse_build_args()
 
     # Test args existence. All should be present, even if not provided.
@@ -63,8 +56,8 @@ def test_parse_build_args(
 def mock_epoch_dir(tmp_path: Path) -> Path:
     d = tmp_path / "build_epoch"
     d.mkdir(exist_ok=True)
-    for ii in range(1, 4):
-        dd = d / f"epoch{ii}d"
+    for dims in range(1, 4):
+        dd = d / f"epoch{dims}d"
         dd.mkdir(exist_ok=True)
         bin_dir = dd / "bin"
         bin_dir.mkdir(exist_ok=True)
@@ -82,10 +75,10 @@ def mock_epoch_dir(tmp_path: Path) -> Path:
             # DEFINES += $(D)MORE_PHOTONS
 
             hello_world:
-            \techo $(DEFINES) > bin/epoch{ii}d
+            \techo $(DEFINES) > bin/epoch{dims}d
 
             clean:
-            \trm -f bin/epoch{ii}d
+            \trm -f bin/epoch{dims}d
             """
         )
         (dd / "Makefile").write_text(makefile)
@@ -101,18 +94,18 @@ def mock_make_dir(mock_epoch_dir: Path) -> Path:
     "flags,expected_hashes",
     (
         (None, 7),
-        (("ICE_CREAM",), 6),  # Shouldn't affect ICE_CREAM_SUNDAE
-        (("PIZZA",), 7),  # Already uncommented
-        (("ICE_CREAM", "MILKSHAKE"), 5),
-        (("ICE_CREAM_SUNDAE",), 6),  # Shouldn't affect ICE_CREAM
-        (("PHOTONS",), 6),  # Shouldn't affect MORE_PHOTONS
-        (("MORE_PHOTONS",), 6),  # Shouldn't affect PHOTONS
-        (("PHOTONS", "MORE_PHOTONS"), 5),
+        (["ICE_CREAM"], 6),  # Shouldn't affect ICE_CREAM_SUNDAE
+        (["PIZZA"], 7),  # Already uncommented
+        (["ICE_CREAM", "MILKSHAKE"], 5),
+        (["ICE_CREAM_SUNDAE"], 6),  # Shouldn't affect ICE_CREAM
+        (["PHOTONS"], 6),  # Shouldn't affect MORE_PHOTONS
+        (["MORE_PHOTONS"], 6),  # Shouldn't affect PHOTONS
+        (["PHOTONS", "MORE_PHOTONS"], 5),
     ),
 )
 def test_compiler_flags(
     mock_make_dir: Path,
-    flags: Optional[Iterable[str]],
+    flags: list[str] | None,
     expected_hashes: int,
 ):
     with compiler_flags(mock_make_dir, flags=flags):

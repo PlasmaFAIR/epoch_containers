@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from epoch_container_utils.utils import exe_name
+from epoch_containers.utils import exe_name
 
 
 @pytest.mark.parametrize("dims,photons", itertools.product((1, 2, 3), (False, True)))
