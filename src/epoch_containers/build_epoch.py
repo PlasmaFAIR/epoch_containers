@@ -4,15 +4,13 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Any, Generator
 
 from .utils import exe_name
 
 
 def parse_build_args() -> argparse.Namespace:
-    """
-    Defines command line interface for building Epoch.
-    """
+    """Defines command line interface for building Epoch."""
 
     parser = argparse.ArgumentParser(
         prog="build_epoch",
@@ -45,10 +43,10 @@ def parse_build_args() -> argparse.Namespace:
 
 
 @contextmanager
-def compiler_flags(directory: Path, flags: Optional[Iterable[str]] = None) -> None:
-    """
-    Set compiler flags to Makefile in current working directory
-    """
+def compiler_flags(
+    directory: Path, flags: list[str] | None = None
+) -> Generator[None, Any, Any]:
+    """Set compiler flags to Makefile in current working directory."""
     makefile = Path(directory) / "Makefile"
     tmp = Path(directory) / "Makefile.copy"
 
@@ -66,10 +64,10 @@ def compiler_flags(directory: Path, flags: Optional[Iterable[str]] = None) -> No
 
     try:
         # Read Makefile into list of strings
-        with open(makefile) as f:
+        with makefile.open() as f:
             lines = f.readlines()
         # Copy to new list, uncommenting lines that match flags
-        newlines = []
+        newlines: list[str] = []
         for line in lines:
             for flag in flags:
                 if re.search(rf"\$\(D\){flag}$", line):
@@ -78,21 +76,20 @@ def compiler_flags(directory: Path, flags: Optional[Iterable[str]] = None) -> No
             else:
                 newlines.append(line)
         # Write back to file
-        with open(makefile, "w") as f:
+        with makefile.open("w") as f:
             f.writelines(newlines)
         # Pass out of context manager
         yield
 
     finally:
         # On returning to context manager, move copied makefile back to original name
-        shutil.move(tmp, makefile)
+        shutil.move(str(tmp), str(makefile))
 
 
 def build_epoch(
     epoch_dir: Path, dims: int, compiler: str, photons: bool = False
 ) -> None:
-    """
-    Builds an Epoch executable. Returns path to executable.
+    """Builds an Epoch executable. Returns path to executable.
 
     Parameters
     ----------
@@ -110,7 +107,7 @@ def build_epoch(
     if not directory.is_dir():
         raise NotADirectoryError(f"{directory} is not a directory")
     # Set up compiler flags
-    flags = []
+    flags: list[str] = []
     if photons:
         flags.append("PHOTONS")
 
@@ -125,15 +122,13 @@ def build_epoch(
     bin_dir = epoch_dir / "bin"
     bin_dir.mkdir(exist_ok=True)
     new_exe = bin_dir / exe_name(dims=dims, photons=photons)
-    shutil.move(exe, new_exe)
+    shutil.move(str(exe), str(new_exe))
 
     # Clean up
     subprocess.run(["make", "--directory", str(directory), "clean"])
 
 
 def main():
-    """
-    Entrypoint function for building Epoch.
-    """
+    """Entrypoint function for building Epoch."""
     args = parse_build_args()
     build_epoch(Path.cwd(), args.dims, args.compiler, photons=args.photons)

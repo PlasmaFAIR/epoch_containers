@@ -1,0 +1,59 @@
+[project]
+name = "epoch_containers"
+dynamic = ["version"]
+readme = "README.md"
+authors = [
+    {name = "Liam Pattinson", email = "liam.pattinson@york.ac.uk"}
+]
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "pytest-sugar",
+]
+lint = [
+  "black",
+  "docformatter",
+  "isort",
+  "ruff",
+  "refurb",
+]
+typing = [
+  "mypy",
+]
+
+[project.scripts]
+build_epoch = "epoch_containers.build_epoch:main"
+run_epoch = "epoch_containers.run_epoch:main"
+
+[build-system]
+requires = ["setuptools >= 65", "setuptools_scm >= 8.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+write_to = "src/epoch_containers/_version.py"
+fallback_version = "0.1.0"
+
+[tool.black]
+exclude = "_version.py"
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+select = ["E", "F", "W", "RUF"]
+ignore-init-module-imports = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.docformatter]
+black = true
+recursive = true
