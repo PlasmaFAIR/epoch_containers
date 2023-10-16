@@ -108,7 +108,7 @@ def run_epoch(
     for f in full_path.iterdir():
         print(f"- {f.name}")
 
-    subprocess.run([exe], cwd=full_path, input=b".")
+    subprocess.run([exe], input=str(full_path).encode("utf-8"))
 
 
 def main() -> None:
