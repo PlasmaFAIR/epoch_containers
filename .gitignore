@@ -163,7 +163,7 @@ cython_debug/
 # --------------------
 
 
-# Ignore epoch git reports
+# Ignore epoch git repo (some developers may wish to clone it here as a reference)
 epoch/
 
 # version file
