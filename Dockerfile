@@ -1,8 +1,3 @@
-# Dockerfile for creating an Epoch container
-
-# To build:
-# $ docker build . -t epoch
-
 FROM ubuntu:22.04
 
 # Set compiler preferences. Options include:
@@ -55,9 +50,6 @@ ENV PATH="${PATH}:/app/epoch/bin"
 
 # Reset workdir to base /app dir
 WORKDIR /app
-
-# Ensure Singularity container will have necessary permissions
-RUN chmod --recursive 755 /app/epoch/bin
 
 # Set entrypoint to that installed by epoch_container_utils
 ENTRYPOINT ["run_epoch"]

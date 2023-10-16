@@ -10,8 +10,7 @@ def parse_run_args() -> argparse.Namespace:
     """Defines command line interface for running Epoch."""
 
     epilog = dedent(
-        """\
-        Docker example:
+        """Docker example:
 
          $ docker run --rm -v /home/username/epoch/my_data:/output_dir\\
                ghcr.io/PlasmaFAIR/epoch:latest\\
@@ -65,8 +64,8 @@ def parse_run_args() -> argparse.Namespace:
         default=Path("/output"),
         type=Path,
         help=dedent(
-            """\
-            The path of the output directory in the container.
+            """The path of the output directory in the container.
+
             With Docker, this should match the second path passed to -v/--volume in
             your call to 'docker run'. With Singularity, this should simply be the
             directory in which your 'input.deck' file is stored.
@@ -101,7 +100,15 @@ def run_epoch(
     exe = exe_name(dims=dims, photons=photons)
     if bin_dir is not None:
         exe = str(Path(bin_dir).resolve() / exe)
-    subprocess.run([exe], input=str(output).encode("utf-8"))
+
+    if not output.is_dir():
+        raise NotADirectoryError(str(output))
+    full_path = output.resolve()
+    print(f"Running on the directory {full_path}, containing:")
+    for f in full_path.iterdir():
+        print(f"- {f.name}")
+
+    subprocess.run([exe], cwd=full_path, input=b".")
 
 
 def main() -> None:
