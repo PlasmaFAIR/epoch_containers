@@ -104,9 +104,8 @@ def singularity_cmd(
     container: str, output: Path, dims: int, photons: bool, nprocs: int
 ) -> str:
     """Constructs the command to run Epoch via a Singularity container."""
-    return dedent(
+    cmd = dedent(
         f"""\
-        mpirun -n {nprocs}
         singularity exec
         --bind {output.resolve()}:/output
         {container}
@@ -116,6 +115,7 @@ def singularity_cmd(
         {'--photons' if photons else ''}
         """
     ).replace("\n", " ")
+    return f"mpirun -n {nprocs} " + cmd if nprocs != 1 else cmd
 
 
 def main() -> None:

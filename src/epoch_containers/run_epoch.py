@@ -103,12 +103,8 @@ def run_epoch(
 
     if not output.is_dir():
         raise NotADirectoryError(str(output))
-    full_path = output.resolve()
-    print(f"Running on the directory {full_path}, containing:")
-    for f in full_path.iterdir():
-        print(f"- {f.name}")
 
-    subprocess.run([exe], input=str(full_path).encode("utf-8"))
+    subprocess.run([exe], input=str(output.resolve()).encode("utf-8"))
 
 
 def main() -> None:
