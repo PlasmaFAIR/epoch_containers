@@ -29,7 +29,7 @@ RUN git clone --recursive https://github.com/Warwick-Plasma/epoch /app/epoch
 
 # Set up Python, install utility library
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install numpy matplotlib
+RUN python3 -m pip install numpy scipy matplotlib pandas xarray
 RUN python3 -m pip install .
 
 # Build Epoch variants
