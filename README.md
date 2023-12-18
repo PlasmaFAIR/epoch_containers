@@ -1,7 +1,7 @@
 # Epoch Containers
 
-This repository contains tools and information for building/running [Epoch][epoch] using
-Docker/Singularity containers.
+This repository contains tools and information for building and running [Epoch][epoch]
+using containers.
 
 ## Introduction
 
@@ -13,9 +13,8 @@ it much easier to share reproducible workflows.
 We provide support for two container platforms: [Docker][docker] and
 [Singularity][singularity] (or Apptainer). Docker is the most widely used platform, and
 has been used here to build a 'base image' of Epoch on which other tools may be created.
-Singularity is an alternative container platform that was designed to be useable on HPC
-systems, so unlike Docker it can be run on multi-node architectures using MPI without
-issue.
+Singularity is an alternative container platform that is better suited for use on HPC
+systems, as unlike Docker it can be run using MPI.
 
 ## Usage
 
@@ -36,7 +35,7 @@ We can run the Docker container using:
 $ python3 run_epoch.py docker -d 2 -o ./my_epoch_run
 ```
 
-Here, `-d` specifies the number of dimensions in the simulation, and `-o` specifies the
+Here, `-d` specifies the number of dimensions in the simulation and `-o` specifies the
 output directory (which should contain `input.deck`). Users can switch on QED effects by
 also providing the `--photons` argument. The output directory should not be the current
 working directory. To see a full list of possible options, we can also supply the
@@ -55,9 +54,10 @@ for specifying the number of MPI processes to run:
 $ python3 run_epoch.py singularity -d 2 -o ./my_epoch_run -n 4
 ```
 
-The extra argument `-n` specifies the number of processes to run.
+The extra argument `-n` specifies the number of processes to run. With Singularity, it
+is permitted to run in the current working directory.
 
-On HPC systems, you will need to load Singularity/Apptainer and OpenMPI first. For
+On HPC systems, you will need to load OpenMPI and Singularity/Apptainer first. For
 example, on Viking at the University of York, this requires:
 
 ```bash

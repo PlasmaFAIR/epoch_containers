@@ -15,7 +15,7 @@ $ ssh viking
 ```
 
 On logging in, you should find yourself in a directory containing `./scratch`: this is
-where you should run all of your jobs on Viking. Clone this repository into here:
+where you should run all of your jobs on Viking. Clone this repository here:
 
 ```bash
 $ cd scratch
@@ -53,9 +53,8 @@ $ module load Apptainer
 ```
 
 > [!NOTE]
-> Apptainer is a flavour of Singularity supported by the Linux Foundation, with the
-  other major flavour being SingularityCE. Containers built using one tool are usually
-  runnable using the other.
+> Apptainer is a flavour of Singularity supported by the Linux Foundation, and it is
+  largely compatible with other flavours.
 
 The first time we try to run a Singularity container, it will take a long time to be
 downloaded. To speed things up, we can pre-download it using the following command from
@@ -69,11 +68,11 @@ This will download the container, cache it locally, and drop you into a command 
 You can escape it be pressing `Ctrl + d`.
 
 To run Epoch using containers, please skip forward to the section
-[Running Epoch][running_epoch].
+[Running Epoch][#running-epoch].
 
 ## Compiling from Source
 
-If you run into difficulties with the Singularity containers, another option would be to
+If you run into difficulties with the Singularity containers, another option is to
 compile and run Epoch from source. To do so, clone the main Epoch repo as described
 above, and enter the correct version of the code:
 
@@ -104,23 +103,23 @@ if you wish.
 ## Running Epoch
 
 To run Epoch, you will need to use a modified version of the script `epoch_viking.sh`
-provided in this directory. Do _not_ run this directly.
+provided in this directory. **Do not run this directly.**
 
 The lines marked `#SBATCH` control how the job is submitted to the Slurm controller,
-which schedules jobs on Viking. Note that the fewer resources you request, the faster
-your job will be run, but make sure you request enough time, memory, nodes, and tasks
-for your job to succeed!
+which schedules jobs on Viking. Note that the fewer resources you request, the less time
+your job will sit in the queue, but make sure you request enough time, memory, nodes,
+and tasks for your job to succeed!
 
 > [!IMPORTANT]
-> You'll need to set the project code to that provided to you when you signed up to
+> You'll need to set the project code to that was provided to you when you signed up to
   Viking.
 
 The variables set under `User settings` control the Epoch run. Be sure to set the
-variables `output_dir` to match your directory layout. If you're running using
-containers, you should set `run_epoch` to the location of your `run_epoch.py` script,
-and set the variables `dims` and `photons` to set up your run properly. If you're
-running from source, you'll need to set `epoch_exe` to your compiled executable, and
-`mpi_module` to the MPI module you had loaded when you compiled Epoch.
+variable `output_dir` to point to the directory containing your input deck. If you're
+running using containers, you should set `run_epoch` to the location of your
+`run_epoch.py` script, and set the variables `dims` and `photons` to set up your run
+properly. If you're running from source, you'll need to set `epoch_exe` to your compiled
+executable, and `mpi_module` to the MPI module that was loaded when you compiled Epoch.
 
 To submit a job, use `sbatch`:
 
@@ -165,6 +164,10 @@ Once you have the names of your grids, you can access them as NumPy arrays using
 >>> data.My_Variable_Name.data
 ```
 
+From here, you may wish to repackage the data into some other format that is easier to
+work with. For a very straightforward approach, the NumPy function `tofile` may be of
+use, or the library [`xarray`][xarray] might be useful if you want to convert to NetCDF.
+
 For more information on `sdf_helper`, please see the [official docs][sdf].
 
 Note that you should not perform any computationally intensive work directly on the
@@ -198,3 +201,4 @@ tools via Slurm jobs.
 [account]: https://vikingdocs.york.ac.uk/getting_started/creating_accounts.html
 [connect]: https://vikingdocs.york.ac.uk/getting_started/connecting_to_viking.html
 [sdf]: https://epochpic.github.io/documentation/visualising_output/python.html
+[xarray]: https://docs.xarray.dev/en/stable/
