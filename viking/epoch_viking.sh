@@ -15,8 +15,7 @@
 #SBATCH --cpus-per-task=1              # Number of CPUS per process (leave this as 1!)
 #SBATCH --mem-per-cpu=1gb              # Memory per task
 #SBATCH --time=00:01:00                # Total time limit hrs:min:sec
-#SBATCH --output=%x_%j.log             # Log file for stdout outputs
-#SBATCH --output=%x_%j.err             # Log file for stderr outputs
+#SBATCH --output=%x_%j.log             # Log file for stdout/stderr outputs
 #SBATCH --partition=nodes              # 'test' for small test jobs (<1m), 'nodes' otherwise
 
 # User settings
@@ -71,7 +70,7 @@ if [[ ${method} -eq "Singularity" ]]; then
   export OMPI_MCA_btl='^vader,tcp,openib,uct'
   export UCX_TLS=^'posix,cma'
 
-  echo "Running Epoch with via Apptainer using ${SLURM_NTASKS} processes"
+  echo "Running Epoch with Apptainer using ${SLURM_NTASKS} processes"
 
   python ${run_epoch} singularity -d ${dims} -o ${output_dir} ${photons} --srun
 
