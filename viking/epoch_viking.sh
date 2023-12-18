@@ -27,7 +27,7 @@
 method="Singularity"
 
 # Name of directory containing your 'input.deck' file.
-# Can be a relative path.
+# Recommended to use a relative path.
 output_dir="."
 
 # Number of dimensions in your run.
@@ -41,14 +41,15 @@ photons=""
 
 # If running Epoch from containers, set this to the 'run_epoch.py' script
 # Ignored if running from source.
-run_epoch="~/scratch/epoch_containers/run_epoch.py"
+# Recommended to use a relative path.
+run_epoch="./run_epoch.py"
 
 # If running Epoch from source, set this to the compiled executable
 # Ignored if running from containers.
-epoch_exe="~/scratch/epoch/epoch2d/bin/epoch2d"
+# Recommended to use a relative path, and include './' in front.
+epoch_exe="./bin/epoch2d"
 
 # OpenMPI module used to compile Epoch
-# Ignored if running from containers.
 mpi_module="OpenMPI"
 
 # -------------
@@ -58,7 +59,7 @@ module load ${mpi_module}
 
 if [[ ${method} -eq "Singularity" ]]; then
 
-  module load Apptainer
+  module load Python Apptainer
 
   # Suppress warnings
   export PMIX_MCA_gds=^ds12
@@ -72,7 +73,7 @@ if [[ ${method} -eq "Singularity" ]]; then
 
   echo "Running Epoch with via Apptainer using ${SLURM_NTASKS} processes"
 
-  ${run_epoch} singularity -d ${dims} -o ${output_dir} ${photons} --srun
+  python ${run_epoch} singularity -d ${dims} -o ${output_dir} ${photons} --srun
 
   # Alternative in case the above isn't working:
   # srun singularity exec --bind ${output_dir}:/output oras://ghcr.io/plasmafair/epoch.sif:latest run_epoch -d ${dims} -o /output --srun ${photons}
