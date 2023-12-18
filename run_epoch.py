@@ -10,8 +10,8 @@ This script can also be used to launch a shell in a Singularity image with sdf_h
 pre-installed.
 """
 
-from argparse import ArgumentParser, Namespace
 import subprocess
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from textwrap import dedent
 from typing import Optional
@@ -140,6 +140,12 @@ def parse_args() -> Namespace:
         action="store_true",
         help="Open directly into a Python shell",
     )
+    shell_parser.add_argument(
+        "--cmd",
+        type=str,
+        default=None,
+        help="Run a specific command on entering the shell.",
+    )
     container_arg(shell_parser, _CONTAINERS["singularity"])
 
     return parser.parse_args()
@@ -191,16 +197,19 @@ def pull_cmd(container: str, output: Path) -> str:
     return f"singularity pull {output} {container}"
 
 
-def shell_cmd(container: str, python: bool) -> str:
+def shell_cmd(container: str, python: bool, cmd: Optional[str] = None) -> str:
     """Construct the command to open a shell in a Singularity container."""
     if python:
         return f"singularity exec {container} python"
+    if cmd is not None:
+        return f"singularity exec {container} {cmd}"
     return f"singularity shell {container}"
 
 
 def prompt_output(output: Optional[Path]) -> Path:
-    """
-    If output is None, prompt the user to supply it. Otherwise return unchanged.
+    """If output is None, prompt the user to supply it. 
+
+    Otherwise return unchanged.
     Allows the user to run the code using ``echo output_dir | run_epoch.py``.
     """
     return Path(input("Please enter output directory:\n")) if output is None else output
@@ -227,7 +236,7 @@ def main() -> None:
         if args.singularity_mode == "pull":
             run_cmd(pull_cmd(args.container, args.output))
         elif args.singularity_mode == "shell":
-            run_cmd(shell_cmd(args.container, args.python))
+            run_cmd(shell_cmd(args.container, args.python, args.cmd))
         else:
             cmd = singularity_cmd(
                 args.container,
